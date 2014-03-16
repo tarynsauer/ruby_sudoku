@@ -14,26 +14,21 @@ class Sudoku
         make_move_if_possible(value, index)
       end
     end
+    solved_puzzle_message
   end
 
   def make_move_if_possible(value, index)
     if (open_space?(value) && make_move?(index))
       place_value_on_board(index)
-      print_board
     end
   end
 
   def place_value_on_board(index)
     move = possible_moves(index).first 
     board[index] = move
-    move_count_message
+    @move_count += 1
   end
 
-  def move_count_message
-    @move_count += 1
-    puts "Move ##{move_count}"
-  end
-  
   def row_values(index)
     row_num = row_index(index) 
     beg_i = row_num * 9
@@ -82,6 +77,10 @@ class Sudoku
     print_board
   end
 
+  def solved_puzzle_message
+    puts "\nSolved puzzle in #{move_count} moves."
+    print_board
+  end
 
   def unsolved?
     board.include?("0")
