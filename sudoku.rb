@@ -4,6 +4,7 @@ class Sudoku
   def initialize(puzzle)
      @options = ['1', '2', '3', '4', '5', '6', '7', '8', '9']
      @board = puzzle.split('')
+     @move_count = 0
   end
 
   def solve!
@@ -15,13 +16,6 @@ class Sudoku
     end
   end
 
-  def make_guess_if_empty(value, index)
-    if open_space?(value)
-      place_value_on_board(index)
-      print_board
-    end
-  end
-
   def make_move_if_possible(value, index)
     if (open_space?(value) && make_move?(index))
       place_value_on_board(index)
@@ -29,16 +23,17 @@ class Sudoku
     end
   end
 
-  def start_solving_message
-    puts "\nStarting board:"
-    print_board
-  end
-
   def place_value_on_board(index)
     move = possible_moves(index).first 
-    board[index] = move 
+    board[index] = move
+    move_count_message
   end
 
+  def move_count_message
+    @move_count += 1
+    puts "Move ##{move_count}"
+  end
+  
   def row_values(index)
     row_num = row_index(index) 
     beg_i = row_num * 9
@@ -55,14 +50,6 @@ class Sudoku
     end
     col
   end 
-
-  def unsolved?
-    board.include?("0")
-  end
-
-  def open_space?(value)
-    value == "0" 
-  end
 
   def make_move?(index)
     possible_moves(index).length == 1  
@@ -89,6 +76,20 @@ class Sudoku
   end
 
   private
+  
+  def start_solving_message
+    puts "\nStarting board:"
+    print_board
+  end
+
+
+  def unsolved?
+    board.include?("0")
+  end
+
+  def open_space?(value)
+    value == "0" 
+  end
 
   def row_index(index)
     index / 9
