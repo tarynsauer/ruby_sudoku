@@ -61,8 +61,20 @@ describe Sudoku do
     end
 
     it "places move on board" do
-      @sudoku.place_value_on_board(12)
+      @sudoku.place_value_on_board("1", 12)
       expect(@sudoku.board[12]).to_not eq("0")
+    end
+
+    it "increases precision value when begin board is same" do
+      @sudoku.begin_board = @sudoku.board
+      @sudoku.begin_guessing_if_no_move_made
+      expect(@sudoku.precision_value).to eq(2)
+    end
+
+    it "resets precision value after move is made" do
+      @sudoku.begin_board[1] = "8"
+      @sudoku.stop_guessing_if_move_made
+      expect(@sudoku.precision_value).to eq(1)
     end
 
   end

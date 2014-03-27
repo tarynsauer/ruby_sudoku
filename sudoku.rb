@@ -1,32 +1,56 @@
 class Sudoku
-   attr_accessor :board, :options, :move_count
+   attr_accessor :board, :options, :move_count, :precision_value, :begin_board  
 
   def initialize(puzzle)
      @options = ['1', '2', '3', '4', '5', '6', '7', '8', '9']
      @board = puzzle.split('')
      @move_count = 0
+     @precision_value = 1
   end
 
   def solve!
-    start_solving_message
     while unsolved? 
+      @begin_board = board.dup
       board.each_with_index do |value, index|
+        stop_guessing_if_move_made
         make_move_if_possible(value, index)
       end
+      begin_guessing_if_no_move_made
     end
     solved_puzzle_message
   end
 
-  def make_move_if_possible(value, index)
-    if (open_space?(value) && make_move?(index))
-      place_value_on_board(index)
+  def begin_guessing_if_no_move_made
+    if @begin_board == board  ## Begin guessing
+      @precision_value += 1
+    else 
+      precision_value = 1 ## Stop guessing
     end
   end
 
-  def place_value_on_board(index)
-    move = possible_moves(index).first 
-    board[index] = move
-    @move_count += 1
+  def stop_guessing_if_move_made
+    if (precision_value > 1 && (@begin_board != board)) 
+      precision_value = 1 ## Stop guessing after placing move of first guess
+    end
+  end
+
+  def make_move_if_possible(value, index)
+    if (open_space?(value) && make_move?(index))
+      place_value_on_board(value, index)
+    end
+  end
+
+  def place_value_on_board(value, cell_index)
+    if possible_moves(cell_index).empty? # Bad move placed while guessing, can't solve
+       @board = @begin_board.dup # Reset board
+       precision_value = 1
+       solve! #Try guessing again
+    else
+       move = possible_moves(cell_index).shuffle.first
+       @board[cell_index] = move
+       precision_value = 1 
+       @move_count += 1
+    end 
   end
 
   def row_values(index)
@@ -47,7 +71,7 @@ class Sudoku
   end 
 
   def make_move?(index)
-    possible_moves(index).length == 1  
+    possible_moves(index).length <= precision_value  
   end
 
   def print_board
@@ -61,17 +85,15 @@ class Sudoku
   end
 
   def possible_moves(index)
-    options - all_taken_values(index)
+    options - all_taken_values(index) 
   end
 
   def all_taken_values(index)
     all_values = row_values(index) + col_values(index) + box_values(index)
     all_values.delete("0")
-    all_values.uniq!
+    all_values.uniq
   end
 
-  private
-  
   def start_solving_message
     puts "\nStarting board:"
     print_board
