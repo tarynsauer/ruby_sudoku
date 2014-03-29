@@ -1,5 +1,5 @@
 class Sudoku
-  
+
   def initialize(puzzle)
      @options = ['1', '2', '3', '4', '5', '6', '7', '8', '9']
      @board = puzzle.split('')
@@ -8,41 +8,41 @@ class Sudoku
   end
 
   def solve!
-    while unsolved?
+    while unsolved? 
       @begin_board = @board.dup
       @board.each_with_index do |value, index|
         make_move_if_possible(value, index)
       end
       begin_guessing
     end
+    solved_puzzle_message
   end
 
   def begin_guessing
-    if @begin_board == @board ## Begin guessing
+    if @begin_board == @board 
       @precision_value += 1
     else 
-      @precision_value = 1 ## Stop guessing
+      @precision_value = 1 
     end
   end
 
   def make_move_if_possible(value, index)
     moves = possible_moves(index)
-    if moves.empty?
-      @board = @begin_board.dup # Reset board
-      @precision_value = 1
-    elsif (open_space?(value) && make_move?(moves))
+    if (open_space?(value) && make_move?(moves))
       place_value_on_board(moves, index)
     end
   end
 
-  def place_value_on_board(moves, index)
-    @board[index] = moves.shuffle.first 
-    @precision_value = 1 
-    @move_count += 1
-  end
-
-  def make_move?(moves)
-    moves.length <= @precision_value  
+  def place_value_on_board(moves, cell_index)
+    if moves.empty? 
+       @board = @begin_board.dup 
+       @precision_value = 1
+    else
+       move = moves.shuffle.first
+       @board[cell_index] = move
+       @precision_value = 1 
+       @move_count += 1
+    end 
   end
 
   def row_values(index)
@@ -61,6 +61,10 @@ class Sudoku
     end
     col
   end 
+
+  def make_move?(moves)
+    moves.length <= @precision_value  
+  end
 
   def print_board
     printer = Board.new(@board)
