@@ -2,7 +2,7 @@ require_relative 'board_printer'
 require_relative 'board_utils'
 
 class Solver
-  attr_accessor :board, :move_count, :options, :begin_board, :precision, :original_board
+  attr_accessor :board, :move_count, :options, :begin_board, :precision
 
   def initialize(puzzle)
     @puzzle = puzzle
@@ -14,7 +14,7 @@ class Solver
 
   def solve!
     until solved? 
-    @begin_board = @board.clone.join("")
+    @begin_board = @board.dup
       @board.each_with_index do |value, index|
         make_move_if_possible(value, index) if open_space?(value)
       end
@@ -24,11 +24,7 @@ class Solver
   end
   
   def guess_if_necessary
-    if @begin_board == @board.join("")
-      @precision += 1
-    else
-      @precision = 1
-    end
+    @begin_board == @board ? @precision += 1 : @precision = 1
   end
 
   def make_move_if_possible(value, index)
@@ -46,6 +42,7 @@ class Solver
     else
       move = moves.shuffle.first
       @board[cell_index] = move
+      @move_count += 1
     end
   end
   
@@ -73,13 +70,13 @@ class Solver
     puts printer.print_board
   end
 
-  def start_solving_message
-    puts "\nStarting board:"
+  def start_solving_message(count)
+    puts "\n ***** Puzzle ##{count} *****"
     print_board
   end
 
-  def solved_puzzle_message
-    puts "\nSolved puzzle in #{@move_count} moves"
+  def end_solving_message(seconds)
+    puts "Solved in #{seconds}s and #{@move_count} moves"
     print_board
   end
 

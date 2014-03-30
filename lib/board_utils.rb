@@ -15,7 +15,7 @@ class BoardUtils
     col = []
     @util_board.each_with_index do |v, i|
       if col_index(i) == col_index(index) 
-        col << v
+        col.push(v)
       end
     end
     col
