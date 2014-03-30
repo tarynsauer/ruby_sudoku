@@ -1,4 +1,4 @@
-class Board
+class BoardPrinter
   attr_accessor :board
   
   def initialize(board)
@@ -19,7 +19,7 @@ class Board
         board_string += divider
       end
     end
-    board_string
+    board_string + "\n"
   end
 
   def divider
