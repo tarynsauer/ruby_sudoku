@@ -11,12 +11,10 @@ class Runner
 
     puzzles.each do |p|
       count += 1
-      puts "\n ***** Puzzle ##{count} *****"
       solver = Solver.new(p[0])
-      solver.print_board 
+      solver.start_solving_message(count)
       time = Benchmark.realtime { solver.solve! }
-      puts " ##{count} solved in #{time}s"
-      solver.print_board
+      solver.end_solving_message(time)
       sleep(0.5)
     end
   end
