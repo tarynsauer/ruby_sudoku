@@ -2,82 +2,81 @@ require_relative 'board_printer'
 require_relative 'board_utils'
 
 class Solver
-  attr_accessor :board, :move_count, :options, :begin_board, :precision
+  attr_accessor :board, :begin_board, :precision, :move_count
+  MAX_COUNT = 10000
 
   def initialize(puzzle)
     @puzzle = puzzle
-    @options = ['1', '2', '3', '4', '5', '6', '7', '8', '9']
     @board = puzzle.split('')
-    @move_count = 0
+    @options = "123456789".split('') 
     @precision = 1
+    @move_count = 0 
   end
 
   def solve!
-    until solved? 
-    @begin_board = @board.dup
-      @board.each_with_index do |value, index|
-        make_move_if_possible(value, index) if open_space?(value)
-      end
-      guess_if_necessary
+    until solved?
+      @begin_board = @board.dup
+      find_potential_moves
+      guess_if_neccessary
+      return @board.join('') if @move_count > MAX_COUNT 
     end
-    @board.join('') 
-  end
-  
-  def guess_if_necessary
-    @begin_board == @board ? @precision += 1 : @precision = 1
+    @board.join('')
   end
 
-  def make_move_if_possible(value, index)
+  def find_potential_moves
+    @board.each_with_index { |v, i| try_move(i) if open_cell?(v) }
+  end
+
+  def guess_if_neccessary
+    if @begin_board == @board
+      @precision += 1
+    end
+  end
+
+  def possible_moves(index)
+    @options - member_values(index)
+  end
+
+  def member_values(index)
+    util = BoardUtils.new(@board)
+    util.row_values(index) + util.box_values(index) + util.col_values(index)
+  end
+
+  def try_move(index)
     moves = possible_moves(index)
-    if moves.length <= @precision 
-      place_value_on_board(moves, index)
+    if moves.length <= @precision
+      make_move(moves, index) 
       @precision = 1
     end
   end
 
-  def place_value_on_board(moves, cell_index)
-    if moves.length.zero?
-      @board = @puzzle.split('') 
-      @precision = 1 
-    else
-      move = moves.shuffle.first
-      @board[cell_index] = move
+  def make_move(moves, index)
+    if moves.empty?
+      @board = @puzzle.split('')
+    else  
+      moves.length <= @precision 
+      @board[index] = moves.shuffle.first
       @move_count += 1
     end
   end
-  
+
   def solved?
     !@board.include?("0")
   end
 
-  def open_space?(value)
-    value == "0" 
+  def open_cell?(value)
+    value == "0"
   end
 
-  def possible_moves(index)
-    @options - all_taken_values(index) 
-  end
-
-  def all_taken_values(index)
-    util = BoardUtils.new(@board)
-    all_values = util.row_values(index) + util.col_values(index) + util.box_values(index)
-    all_values.delete("0")
-    all_values.uniq
-  end
-
-  def print_board
+  def end_solving_message(time)
     printer = BoardPrinter.new(@board)
+    puts "Solved in #{time}s and #{@move_count} moves" 
     puts printer.print_board
   end
 
   def start_solving_message(count)
-    puts "\n ***** Puzzle ##{count} *****"
-    print_board
+    printer = BoardPrinter.new(@board)
+    puts "******* Puzzle ##{count} ********"
+    puts printer.print_board
   end
-
-  def end_solving_message(seconds)
-    puts "Solved in #{seconds}s and #{@move_count} moves"
-    print_board
-  end
-
 end
