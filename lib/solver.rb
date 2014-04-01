@@ -53,8 +53,7 @@ class Solver
   def make_move(moves, index)
     if moves.empty?
       @board = @puzzle.split('')
-    else  
-      moves.length <= @precision 
+    else 
       @board[index] = moves.shuffle.first
       @move_count += 1
     end
