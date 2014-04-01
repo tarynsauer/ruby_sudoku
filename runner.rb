@@ -6,7 +6,7 @@ class Runner
   include ExamplePuzzles
 
   def self.run!
-    puzzles = VERY_EASY + EASY + DIFFICULT + VERY_DIFFICULT
+    puzzles = EASY + HARD 
     count = 0
     puzzles.each do |p|
       count += 1
