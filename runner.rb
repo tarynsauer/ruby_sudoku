@@ -12,7 +12,7 @@ class Runner
       count += 1
       solver = Solver.new(p[0])
       solver.start_solving_message(count)
-      time = Benchmark.realtime { solver.solve! }
+      time = Benchmark.realtime { solver.solve }
       solver.end_solving_message(time)
       sleep(0.5)
     end

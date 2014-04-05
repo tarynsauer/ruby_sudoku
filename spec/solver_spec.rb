@@ -3,108 +3,61 @@ require 'spec_helper'
 describe Solver do
   include ExamplePuzzles
 
-  before :each do
-    @puzzle = "105802000090076405200400819019007306762083090000061050007600030430020501600308900"
-    @solver = Solver.new(@puzzle)
-  end
+  let(:very_easy_puzzle) { ExamplePuzzles::VERY_EASY.first }
+  let(:easy_puzzle) { ExamplePuzzles::EASY.first }
+  let(:hard_puzzle) { ExamplePuzzles::HARD.first }
+  let(:solver) { Solver.new(easy_puzzle[0]) }
+  let(:example_board) { easy_puzzle[0].split('') }
+  let(:bad_guess_board) { ExamplePuzzles::EASY.last }
 
   context "helper methods" do
     it "has a board with 81 cells" do
-      expect(@solver.board.length).to eq(81)
+      expect(solver.board.length).to eq(81)
     end
 
-    it "gets all values from 27 member cells" do
-      expect(@solver.member_values(0).length).to eq(27)
+    it "gets 27 members for a cell index" do
+      expect(solver.member_cells(example_board, 0).length).to eq(27)
     end
 
-    it "gets possible moves for a given cell" do
-      expect(@solver.possible_moves(1)).to eq(["4", "7"]) 
-    end
-
-    it "returns true if cell is open" do
-      expect(@solver.open_cell?("0")).to be(true)
+    it "gets all possible moves for a cell" do
+      expect(solver.possible_moves(example_board, 1)).to eq(["4", "7"])
     end
   end
-
-  context "solving logic" do
-    it "adds move to the board" do
-      @solver.make_move(["3"], 1)
-      expect(@solver.board.join('')).to eq("135802000090076405200400819019007306762083090000061050007600030430020501600308900")
+  
+  context "#solve puzzles" do
+    def solve_puzzle_test(puzzle)
+      solver = Solver.new(puzzle[0])
+      expect(solver.solve).to eq(puzzle[1]), "Expected: #{print_puzzle(solver.solve)} Got: #{print_puzzle(puzzle[1])}"
     end
 
-    it "only makes move if moves length is less than or equal to precision" do
-      @solver.try_move(1)
-      expect(@solver.board).to eq(@puzzle.split(''))
-    end
-
-    it "resets precision value to 1" do
-      @solver.precision = 2
-      @solver.try_move(1)
-      expect(@solver.precision).to eq(1)
-    end
-
-    it "resets board to original puzzle if moves empty" do
-      @solver.board = "10580255090076405200400819319007306762083090000061050007600030430020501600308900".split('')
-      @solver.make_move([], 1)
-      expect(@solver.board).to eq(@puzzle.split(''))
-    end
-
-    it "returns false if board contains open cells" do
-      expect(@solver.solved?).to be(false)
-    end
-
-    it "does not add  move to the board when multiple possibilities" do
-      @solver.try_move(1)
-      expect(@solver.board.join('')).to eq(@puzzle)
-    end
-
-    it "adds  move to the board when one possibility" do
-      solver = Solver.new("609238745274561398853947621486352179792614583531879264945723816328196457167485932")
-      solver.try_move(1)
-      expect(solver.board.join('')).to eq("619238745274561398853947621486352179792614583531879264945723816328196457167485932")
-    end
-
-    it "increases precision value when board doesn't change" do
-      @solver.begin_board = "105802000090076405200400819019007306762083090000061050007600030430020501600308900".split('')
-      @solver.guess_if_neccessary
-      expect(@solver.precision).to eq(2)
-    end
-  end
-
-  context "#solve! example puzzles of varying difficulty" do
     it "solves a puzzle with one open cell" do
-      puzzle = "609238745274561398853947621486352179792614583531879264945723816328196457167485932"
-      solver = Solver.new(puzzle)
-      expect(solver.solve!).to eq("619238745274561398853947621486352179792614583531879264945723816328196457167485932")
+      solve_puzzle_test(very_easy_puzzle)
     end
 
-    it "solves seven easy puzzles" do
-      puzzles = ExamplePuzzles::EASY
-      puzzles.each do |puzzle|
-        solver = Solver.new(puzzle[0])
-
-        expect(solver.solve!).to eq(puzzle[1])
-      end
+    it "solves an easy-level puzzle" do
+      solve_puzzle_test(easy_puzzle)
     end
 
-    it "solves seven difficult puzzles" do
-      puzzles = ExamplePuzzles::DIFFICULT
-      puzzles.each do |puzzle|
-        solver = Solver.new(puzzle[0])
-        expect(solver.solve!).to eq(puzzle[1])
-      end
+    it "solves a hard-level puzzle" do
+      solve_puzzle_test(hard_puzzle)
     end
-
-    it "solves two very difficult puzzles" do
-      puzzles = ExamplePuzzles::VERY_DIFFICULT
-      puzzles.each do |puzzle|
-        solver = Solver.new(puzzle[0])
-        expect(solver.solve!).to eq(puzzle[1])
-      end
-
-    end
-
   end
 
-end
+  context "algorithm helpers" do
+    it "start guessing tries more than one possible move" do
+      solver.guess_if_neccessary(example_board, example_board)
+      expect(solver.possible_moves(example_board, 1).length).to eq(2)
+    end
 
+    it "stops guessing after making a move" do
+      solver.precision = 2
+      solver.try_move(example_board, 1)
+      expect(solver.possible_moves(example_board, 1).length).to eq(1)
+    end
+
+    it "resets board if no possible moves for a cell" do
+      test_board = solver.make_move(bad_guess_board, [], 0)
+      expect(test_board).to eq(example_board)
+    end
+  end
+end
