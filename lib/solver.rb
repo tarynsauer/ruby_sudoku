@@ -4,7 +4,6 @@ require_relative 'board_utils'
 class Solver
   attr_accessor :board, :precision
   EMPTY_CELL = "0"
-
   def initialize(puzzle)
     @move_count = 1
     @board = puzzle.split('')
@@ -17,12 +16,12 @@ class Solver
     while test_board.include?(EMPTY_CELL)
       begin_board = test_board.dup
       test_board.each_with_index do |value, index|
-        test_board = try_move(test_board, index) if value == EMPTY_CELL 
+        test_board = try_move(test_board, index) if value == EMPTY_CELL
       end
       guess_if_neccessary(test_board, begin_board)
     end
-    get_puzzle(test_board) 
-  end
+    get_completed_puzzle(test_board) 
+  end 
 
   def guess_if_neccessary(test_board, begin_board)
     if test_board == begin_board
@@ -31,13 +30,14 @@ class Solver
   end
 
   def try_move(test_board, index)
-    moves = possible_moves(test_board, index)
+    moves = possible_moves(test_board, index) 
     if moves.length <= @precision 
       test_board = make_move(test_board, moves, index)
       @precision = 1
     end
     test_board
   end
+
 
   def make_move(test_board, moves, index)
     if moves.empty?
@@ -49,7 +49,7 @@ class Solver
     test_board
   end
 
-  def get_puzzle(test_board)
+  def get_completed_puzzle(test_board)
     @board = test_board
     test_board.join('')
   end
