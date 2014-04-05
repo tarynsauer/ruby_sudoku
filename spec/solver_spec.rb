@@ -22,6 +22,7 @@ describe Solver do
     it "gets all possible moves for a cell" do
       expect(solver.possible_moves(example_board, 1)).to eq(["4", "7"])
     end
+
   end
 
   context "algorithm helpers" do

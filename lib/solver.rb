@@ -38,7 +38,6 @@ class Solver
     test_board
   end
 
-
   def make_move(test_board, moves, index)
     if moves.empty?
       test_board = @board.dup
@@ -50,7 +49,7 @@ class Solver
   end
 
   def get_completed_puzzle(test_board)
-    @board = test_board
+    @board = test_board.dup
     test_board.join('')
   end
 
